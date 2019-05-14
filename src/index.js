@@ -12,9 +12,13 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use((req, res, next) => { // Middleware de autenticação do usuário
-  // Aqui faria a verificação do AccessKey para descobrir o ID do usuário
-  req.user = { id: 1 };
+app.use(async (req, res, next) => { // Middleware de autenticação do usuário
+	// Envia o contexto da requisição
+	req.context = {
+		models,
+		user: { id: await models.User.findByAccessToken('asdqwe') } // Aqui faria a verificação do AccessKey para descobrir o ID do usuário
+	}
+  
   next();
 });
 

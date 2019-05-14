@@ -35,6 +35,25 @@ const user = (sequelize, DataTypes) => {
     }
   });
 
+  User.findByAccessToken = async accessToken => {
+    if (accessToken == '') {
+      // Não há Access Token, então retorna id zero
+      return 0;
+    } else {
+      // Procura o id do usuário pelo Access Token
+      let user = await User.findOne({
+        where: { access_token: accessToken }
+      });
+
+      if(!user) {
+        // Não encontrou usuário
+        return 0;
+      } else {
+        return user.id;
+      }
+    }
+  }
+
   return User;
 };
 
