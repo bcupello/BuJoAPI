@@ -1,11 +1,8 @@
 import { Router } from 'express';
 import models, { sequelize } from './../models';
+import md5 from 'md5';
 
 const router = Router();
-
-const encryptPass = (pass) => {
-	return 'e70d3289cbd29cf4ff07bfc001459b30';
-};
 
 router.post('/', (req, res) => {
   return res.send('Hello Login!');
@@ -15,7 +12,7 @@ router.put('/', async (req, res) => {
 	const createUserAnswer = await req.context.models.User.create(
     {
       Email: req.body.email,
-      Pass_hash: encryptPass(req.body.password),
+      Pass_hash: md5(req.body.password),
       Access_token: 'zxcvbnmlkjhgfdsa',
       Token_expiry_date: '2019-06-18',
       Name: req.body.name,
