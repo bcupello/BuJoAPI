@@ -52,7 +52,18 @@ const user = (sequelize, DataTypes) => {
         // Não encontrou usuário
         return 0;
       } else {
-        return user.Id;
+        // Encontrou o usuário
+        var newAccessToken = '';
+
+        // Verifica se o Token_expiry_date está próximo de 1 dia
+        var days = Math.round((new Date(user.Token_expiry_date).getTime() - new Date().getTime())/(1000*60*60*24));
+        console.log('days: ', days);
+        if (days <= 2) {
+          // Se está, renova o Access_token
+          newAccessToken = this.refreshAccessTokenById(user.Id);
+        }
+
+        return (user.Id, newAccessToken);
       }
     }
   };
