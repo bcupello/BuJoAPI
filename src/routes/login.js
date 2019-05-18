@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import models, { sequelize } from './../models';
 import md5 from 'md5';
+import uuid from 'uuid';
 
 const router = Router();
 
@@ -13,7 +14,7 @@ router.put('/', async (req, res) => {
     {
       Email: req.body.email,
       Pass_hash: md5(req.body.password),
-      Access_token: 'zxcvbnmlkjhgfdsa',
+      Access_token: uuid.v4(),
       Token_expiry_date: '2019-06-18',
       Name: req.body.name,
       Surname: req.body.surname

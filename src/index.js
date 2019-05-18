@@ -14,11 +14,18 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(async (req, res, next) => { // Middleware de autenticação do usuário
 	// Verifica se é uma requisição com Access_Token
-	// console.log(req);
-	// Envia o contexto da requisição
-	req.context = {
-		models,
-		user: { id: await models.User.findByAccessToken('asdqwe') } // Aqui faria a verificação do AccessKey para descobrir o ID do usuário
+	if (req.header.Access_Token) {
+		// Altera o contexto da requisição
+		req.context = {
+			models,
+			user: { id: await models.User.findByAccessToken(req.header.Access_Token) } // Aqui faria a verificação do AccessKey para descobrir o ID do usuário
+		}
+	} else {
+		// Altera o contexto da requisição para usuário de id 0
+		req.context = {
+			models,
+			user: { id: 0 }
+		}
 	}
   
   next();
