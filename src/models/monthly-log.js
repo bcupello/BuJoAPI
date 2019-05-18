@@ -3,7 +3,8 @@ const monthlyLog = (sequelize, DataTypes) => {
     key: {
       type: DataTypes.STRING,
       unique: true,
-      primaryKey: true
+      primaryKey: true,
+      autoIncrement: true
     },
     date: {
       type: DataTypes.DATE,

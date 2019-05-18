@@ -13,6 +13,8 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(async (req, res, next) => { // Middleware de autenticação do usuário
+	// Verifica se é uma requisição com Access_Token
+	// console.log(req);
 	// Envia o contexto da requisição
 	req.context = {
 		models,

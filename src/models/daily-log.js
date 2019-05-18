@@ -3,7 +3,8 @@ const dailyLog = (sequelize, DataTypes) => {
     key: {
       type: DataTypes.STRING,
       unique: true,
-      primaryKey: true
+      primaryKey: true,
+      autoIncrement: true
     },
     signifier: {
       type: DataTypes.STRING,

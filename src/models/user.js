@@ -1,38 +1,38 @@
 const user = (sequelize, DataTypes) => {
   const User = sequelize.define('User', {
-    id: {
+    Id: {
       type: DataTypes.INTEGER,
       unique: true,
-      primaryKey: true
+      primaryKey: true,
+      autoIncrement: true
     },
-    email: {
+    Email: {
       type: DataTypes.STRING,
       unique: false,
     },
-    pass_hash: {
+    Pass_hash: {
       type: DataTypes.STRING,
       unique: false,
     },
-    access_token: {
+    Access_token: {
       type: DataTypes.STRING,
       unique: false,
     },
-    token_expiry_date: {
+    Token_expiry_date: {
       type: DataTypes.DATE,
       unique: false,
     },
-    refresh_token: {
+    Name: {
       type: DataTypes.STRING,
       unique: false,
     },
-    name: {
-      type: DataTypes.STRING,
-      unique: false,
-    },
-    surname: {
+    Surname: {
       type: DataTypes.STRING,
       unique: false,
     }
+  },
+  {
+    timestamps: false
   });
 
   User.findByAccessToken = async accessToken => {
@@ -42,14 +42,14 @@ const user = (sequelize, DataTypes) => {
     } else {
       // Procura o id do usuário pelo Access Token
       let user = await User.findOne({
-        where: { access_token: accessToken }
+        where: { Access_token: accessToken }
       });
 
       if(!user) {
         // Não encontrou usuário
         return 0;
       } else {
-        return user.id;
+        return user.Id;
       }
     }
   }

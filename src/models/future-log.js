@@ -3,7 +3,8 @@ const futureLog = (sequelize, DataTypes) => {
     key: {
       type: DataTypes.STRING,
       unique: true,
-      primaryKey: true
+      primaryKey: true,
+      autoIncrement: true
     },
     text: {
       type: DataTypes.STRING,
