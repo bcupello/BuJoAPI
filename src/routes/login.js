@@ -5,6 +5,7 @@ import uuid from 'uuid';
 
 const router = Router();
 
+// User Login
 router.post('/', async (req, res) => {
 	// Encontrar o usuário pelo Email e Pass_hash
 	var user = await models.User.findByEmailAndPassword(req.body.email, req.body.password);
@@ -36,6 +37,7 @@ router.post('/', async (req, res) => {
 	}
 });
 
+// User Register
 router.put('/', async (req, res) => {
 	const expiryDate = new Date();
 	expiryDate.setDate(expiryDate.getDate() + 7);
