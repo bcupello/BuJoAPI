@@ -63,7 +63,7 @@ const user = (sequelize, DataTypes) => {
           newAccessToken = this.refreshAccessTokenById(user.Id);
         }
 
-        return (user.Id, newAccessToken);
+        return { id: user.Id, NewAccessToken: newAccessToken };
       }
     }
   };

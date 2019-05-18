@@ -1,28 +1,28 @@
 const dailyLog = (sequelize, DataTypes) => {
   const DailyLog = sequelize.define('Daily_Log', {
-    key: {
+    Key: {
       type: DataTypes.STRING,
       unique: true,
       primaryKey: true,
       autoIncrement: true
     },
-    signifier: {
+    Signifier: {
       type: DataTypes.STRING,
       unique: false,
     },
-    date: {
+    Date: {
       type: DataTypes.DATE,
       unique: false,
     },
-    text: {
+    Text: {
       type: DataTypes.STRING,
       unique: false,
     },
-    status: {
+    Status: {
       type: DataTypes.STRING,
       unique: false,
     },
-    userId: {
+    UserId: {
       type: DataTypes.INTEGER,
       unique: false,
     }

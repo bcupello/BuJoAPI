@@ -16,9 +16,15 @@ app.use(async (req, res, next) => { // Middleware de autenticação do usuário
 	// Verifica se é uma requisição com Access_Token
 	if (req.header.Access_Token) {
 		// Altera o contexto da requisição
+		// Aqui faria a verificação do AccessKey para descobrir o ID do usuário
+		// e atualizaria o Access_token caso o token_expiry_date esteja pra expirar
+		var userData = await models.User.findByAccessToken(req.header.Access_Token);
 		req.context = {
 			models,
-			user: { id: await models.User.findByAccessToken(req.header.Access_Token) } // Aqui faria a verificação do AccessKey para descobrir o ID do usuário
+			user: { id: userData.Id }
+		};
+		if (userData.NewAccessToken != '') {
+			req.res.NewAccessToken = userData.NewAccessToken;
 		}
 	} else {
 		// Altera o contexto da requisição para usuário de id 0
