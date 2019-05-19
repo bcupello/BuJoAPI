@@ -19,7 +19,7 @@ router.post('/', async (req, res) => {
 		// Encontrou Email e Pass_hash compatíveis no BD
 
 		// Atualiza o Access_token do usuário ao logar
-		const newAccessToken = await models.User.refreshAccessTokenById(user.Id)
+		const newAccessToken = await models.User.refreshAccessTokenById(user.Id);
 		
 		// Funcionou a busca
 		if (newAccessToken != '') {

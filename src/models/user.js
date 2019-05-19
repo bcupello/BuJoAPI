@@ -41,29 +41,29 @@ const user = (sequelize, DataTypes) => {
   User.findByAccessToken = async accessToken => {
     if (accessToken == '') {
       // Não há Access Token, então retorna id zero
-      return 0;
+      return { id: 0, newAccessToken: '' };
     } else {
+
       // Procura o id do usuário pelo Access Token
       let user = await User.findOne({
         where: { Access_token: accessToken }
       });
-
-      if(!user) {
+      
+      if(user == null) {
         // Não encontrou usuário
-        return 0;
+        return { id: 0, newAccessToken: '' };
       } else {
         // Encontrou o usuário
         var newAccessToken = '';
 
         // Verifica se o Token_expiry_date está próximo de 1 dia
-        var days = Math.round((new Date(user.Token_expiry_date).getTime() - new Date().getTime())/(1000*60*60*24));
-        console.log('days: ', days);
+        var days = Math.round((new Date(user.dataValues.Token_expiry_date).getTime() - new Date().getTime())/(1000*60*60*24));
         if (days <= 2) {
           // Se está, renova o Access_token
-          newAccessToken = this.refreshAccessTokenById(user.Id);
+          newAccessToken = this.refreshAccessTokenById(user.dataValues.Id);
         }
 
-        return { id: user.Id, NewAccessToken: newAccessToken };
+        return { id: user.Id, newAccessToken: newAccessToken };
       }
     }
   };

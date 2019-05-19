@@ -1,5 +1,5 @@
 const dailyLog = (sequelize, DataTypes) => {
-  const DailyLog = sequelize.define('Daily_Log', {
+  const DailyLog = sequelize.define('Daily_log', {
     Key: {
       type: DataTypes.STRING,
       unique: true,
@@ -7,7 +7,7 @@ const dailyLog = (sequelize, DataTypes) => {
       autoIncrement: true
     },
     Signifier: {
-      type: DataTypes.STRING,
+      type: DataTypes.CHAR,
       unique: false,
     },
     Date: {
@@ -19,14 +19,29 @@ const dailyLog = (sequelize, DataTypes) => {
       unique: false,
     },
     Status: {
-      type: DataTypes.STRING,
+      type: DataTypes.CHAR,
       unique: false,
     },
     UserId: {
       type: DataTypes.INTEGER,
       unique: false,
     }
+  },
+  {
+    timestamps: false
   });
+
+  DailyLog.createDailyLog = async dailyLog => {
+    return await DailyLog.create(
+      {
+        Signifier: dailyLog.signifier,
+        Date: dailyLog.date,
+        Text: dailyLog.text,
+        Status: dailyLog.status,
+        UserId: dailyLog.userId
+      }
+    );
+  };
 
   return DailyLog;
 };

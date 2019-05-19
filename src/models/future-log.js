@@ -1,5 +1,5 @@
 const futureLog = (sequelize, DataTypes) => {
-  const FutureLog = sequelize.define('Future_Log', {
+  const FutureLog = sequelize.define('Future_log', {
     key: {
       type: DataTypes.STRING,
       unique: true,

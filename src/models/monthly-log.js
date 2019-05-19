@@ -1,5 +1,5 @@
 const monthlyLog = (sequelize, DataTypes) => {
-  const MonthlyLog = sequelize.define('Monthly_Log', {
+  const MonthlyLog = sequelize.define('Monthly_log', {
     key: {
       type: DataTypes.STRING,
       unique: true,
