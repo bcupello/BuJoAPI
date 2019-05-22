@@ -44,6 +44,8 @@ app.use(async (req, res, next) => { // Middleware de autenticação do usuário
 			models,
 			user: { id: 0 }
 		}
+
+		next();
 	}
 });
 
