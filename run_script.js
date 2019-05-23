@@ -1,5 +1,5 @@
 const { exec } = require('child_process');
-exec('sudo nodemon --exec babel-node src/index.js', (err, stdout, stderr) => {
+exec('sudo -S nodemon --exec babel-node src/index.js', (err, stdout, stderr) => {
 	console.log('teste');
   if (err) {
   	console.log('teste2', err);
