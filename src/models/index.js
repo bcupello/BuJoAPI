@@ -1,10 +1,10 @@
-// import 'dotenv/config';
+import 'dotenv/config';
 import Sequelize from 'sequelize';
 
 const sequelize = new Sequelize(
-  'BulletJournal_Database',
-  'postgres',
-  'ocintnqmyo',
+  process.env.DATABASE,
+  process.env.DATABASE_USER,
+  process.env.DATABASE_PASSWORD,
   {
   	host: 'localhost',
     dialect: 'postgres',

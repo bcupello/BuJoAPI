@@ -1,4 +1,4 @@
-// import 'dotenv/config';
+import 'dotenv/config';
 import cors from 'cors';
 import express from 'express';
 
@@ -60,6 +60,6 @@ app.use('/daily-log', routes.dailyLog);
   });
 });*/
 
-app.listen(3000, () => {
-  console.log('Example app listening on port 3000!')
+app.listen(process.env.PORT, () => {
+  console.log(`Example app listening on port ${process.env.PORT}!`)
 });
