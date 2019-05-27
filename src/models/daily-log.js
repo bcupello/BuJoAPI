@@ -33,6 +33,7 @@ const dailyLog = (sequelize, DataTypes) => {
     timestamps: false
   });
 
+  // Cria um Daily Log
   DailyLog.createDailyLog = async dailyLog => {
     return await DailyLog.create(
       {
@@ -45,6 +46,7 @@ const dailyLog = (sequelize, DataTypes) => {
     );
   };
 
+  // Procura um Daily Log por um intervalo de datas
   DailyLog.searchDailyLogsByRange = async (startDate, endDate, userId) => {
     return await DailyLog.findAll(
       {
@@ -53,6 +55,22 @@ const dailyLog = (sequelize, DataTypes) => {
             [Op.gte]: startDate,
             [Op.lte]: endDate
           },
+          UserId: userId
+        }
+      }
+    );
+  };
+
+  // Edita as informações principais de um Daily Logs
+  DailyLog.editDailyLogInfo = async (key, signifier, text, userId) => {
+    return await DailyLog.update(
+      {
+        Signifier: signifier,
+        Text: text
+      },
+      {
+        where: {
+          Key: key,
           UserId: userId
         }
       }

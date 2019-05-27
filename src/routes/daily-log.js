@@ -123,6 +123,29 @@ router.post('/', async (req, res) => {
 		// Altera os valores e parâmetros de um Daily Log
 		if(req.body.key != "" && req.body.signifier != "" && req.body.text != "") {
 			// Se existem todos os dados, editamos no banco os valores
+			await models.DailyLog.editDailyLogInfo(req.body.key, req.body.signifier, req.body.text, req.context.user.id)
+			.then(function (resp) {
+				if(resp[0] == 1) {
+					// Funcionou a edição
+					var editDailyLogResponse = {};
+					editDailyLogResponse.Status = 200;
+
+					return res.send(editDailyLogResponse);
+				} else {
+					// Não editou nada
+					var editDailyLogResponse = {};
+					editDailyLogResponse.Status = 204;
+					editDailyLogResponse.Message = 'Não houve Daily Log editado.';
+					return res.send(editDailyLogResponse);
+				}
+			})
+			.catch(function (err) {
+				// Deu um erro interno na edição
+				var editDailyLogFailResponse = {};
+				editDailyLogFailResponse.Status = 500;
+				editDailyLogFailResponse.Message = 'Falha interna na edição de Daily Log. Tente novamente.';
+				return res.send(editDailyLogFailResponse);
+			});
 		} else if(req.body.isDone != undefined) {
 			// Marcar a tarefa como feita/não feita
 		} else if(req.body.isIrrelevant != undefined) {
@@ -139,8 +162,6 @@ router.post('/', async (req, res) => {
 		editDailyLogFailResponse.Message = 'Falha na autenticação do usuário para edição de Daily Log.';
 		return res.send(editDailyLogFailResponse);
 	}
-
-	return res.send({});
 });
 
 export default router;
