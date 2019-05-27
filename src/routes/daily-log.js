@@ -118,6 +118,28 @@ router.get('/:startDate/:endDate', async (req, res) => {
 
 // Edit Daily Log
 router.post('/', async (req, res) => {
+	// Verifica se existe usuário
+	if (req.context.user.id > 0) {
+		// Altera os valores e parâmetros de um Daily Log
+		if(req.body.key != "" && req.body.signifier != "" && req.body.text != "") {
+			// Se existem todos os dados, editamos no banco os valores
+		} else if(req.body.isDone != undefined) {
+			// Marcar a tarefa como feita/não feita
+		} else if(req.body.isIrrelevant != undefined) {
+			// Marcar a tarefa como irrelevante/relevante
+		} else if(req.body.sendToFutureLog == true) {
+			// Envia a tarefa para o Future Log e a exclui dos Daily Logs
+		} else if(req.body.postPone == true) {
+			// Adia a tarefa para o mês req.body.postPoneDate (01-MM-YYYY)
+		}
+	} else {
+		// Não tem como editar o daily log, pois o usuário não está autenticado
+		var editDailyLogFailResponse = {};
+		editDailyLogFailResponse.Status = 400;
+		editDailyLogFailResponse.Message = 'Falha na autenticação do usuário para edição de Daily Log.';
+		return res.send(editDailyLogFailResponse);
+	}
+
 	return res.send({});
 });
 
