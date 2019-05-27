@@ -41,7 +41,7 @@ router.put('/', async (req, res) => {
 			return res.send(createDailyLogFailResponse);
 		});
 	} else {
-		// Não tem como criar o daily log, pois não há usuário
+		// Não tem como criar o daily log, pois o usuário não está autenticado
 		var createDailyLogFailResponse = {};
 		createDailyLogFailResponse.Status = 400;
 		createDailyLogFailResponse.Message = 'Falha na autenticação do usuário para criação de Daily Log.';
@@ -66,17 +66,24 @@ router.get('/:startDate/:endDate', async (req, res) => {
 
 				var dt = new Date(req.params.startDate);
 				var endDate = new Date(req.params.endDate);
-				
+
 				while(dt <= endDate) {
 					// Cria o objeto DailyLogDay pra dar push no DailyLogDays
 					var dailyLogDay = {};
 					dailyLogDay.Date = dt.toISOString().split('T')[0];
 
-					// Cria o objeto dailyLogs, que ficam dentro de um dailyLogDay
-					dailyLogDay.dailyLogs = [];
+					// Cria o objeto DailyLogs, que ficam dentro de um dailyLogDay
+					dailyLogDay.DailyLogs = [];
 					for (var i = 0; i < resp.length; i++) {
 						if(resp[i].Date == dailyLogDay.Date){
-							dailyLogDay.dailyLogs.push(resp[i]);
+							// Cria o objeto dailyLog pra dar push no DailyLogs
+							var dailyLog = {};
+							dailyLog.Key = resp[i].Key;
+							dailyLog.Signifier = resp[i].Signifier;
+							dailyLog.Date = resp[i].Date;
+							dailyLog.Text = resp[i].Text;
+							dailyLog.Status = resp[i].Status;
+							dailyLogDay.DailyLogs.push(dailyLog);
 						}
 					}
 					searchDailyLogsByRangeResponse.DailyLogDays.push(dailyLogDay);
@@ -101,7 +108,7 @@ router.get('/:startDate/:endDate', async (req, res) => {
 			return res.send(searchDailyLogByRangeFailResponse);
 		});
 	} else {
-		// Não tem como buscar daily log, pois não há usuário
+		// Não tem como buscar daily log, pois o usuário não está autenticado
 		var searchDailyLogByRangeFailResponse = {};
 		searchDailyLogByRangeFailResponse.Status = 400;
 		searchDailyLogByRangeFailResponse.Message = 'Falha na autenticação do usuário para busca de Daily Logs.';
