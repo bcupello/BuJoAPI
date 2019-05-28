@@ -46,6 +46,18 @@ const dailyLog = (sequelize, DataTypes) => {
     );
   };
 
+  // Busca um Daily Log por chave
+  DailyLog.getDailyLogByKey = async (key, userId) => {
+    return await DailyLog.findAll(
+      {
+        where: {
+          Key: key,
+          UserId: userId
+        }
+      }
+    );
+  };
+
   // Procura um Daily Log por um intervalo de datas
   DailyLog.searchDailyLogsByRange = async (startDate, endDate, userId) => {
     return await DailyLog.findAll(
@@ -67,6 +79,21 @@ const dailyLog = (sequelize, DataTypes) => {
       {
         Signifier: signifier,
         Text: text
+      },
+      {
+        where: {
+          Key: key,
+          UserId: userId
+        }
+      }
+    );
+  };
+
+  // Edita o status de um Daily Logs
+  DailyLog.editDailyLogStatus = async (key, status, userId) => {
+    return await DailyLog.update(
+      {
+        Status: status
       },
       {
         where: {

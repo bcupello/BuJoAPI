@@ -121,7 +121,7 @@ router.post('/', async (req, res) => {
 	// Verifica se existe usuário
 	if (req.context.user.id > 0) {
 		// Altera os valores e parâmetros de um Daily Log
-		if(req.body.key != "" && req.body.signifier != "" && req.body.text != "") {
+		if(req.body.key != undefined && req.body.signifier != undefined && req.body.text != undefined) {
 			// Se existem todos os dados, editamos no banco os valores
 			await models.DailyLog.editDailyLogInfo(req.body.key, req.body.signifier, req.body.text, req.context.user.id)
 			.then(function (resp) {
@@ -146,19 +146,145 @@ router.post('/', async (req, res) => {
 				editDailyLogFailResponse.Message = 'Falha interna na edição de Daily Log. Tente novamente.';
 				return res.send(editDailyLogFailResponse);
 			});
-		} else if(req.body.isDone != undefined) {
-			// Marcar a tarefa como feita/não feita
-		} else if(req.body.isIrrelevant != undefined) {
-			// Marcar a tarefa como irrelevante/relevante
-		} else if(req.body.sendToFutureLog == true) {
-			// Envia a tarefa para o Future Log e a exclui dos Daily Logs
-		} else if(req.body.postPone == true) {
-			// Adia a tarefa para o mês req.body.postPoneDate (01-MM-YYYY)
+		} else if((req.body.isDone != undefined || req.body.isIrrelevant != undefined) && req.body.key != "") {
+			// Marcar a tarefa como feita/não feita ou irrelevante/relevante
+			var newStatus = '';
+			req.body.isDone == true ? newStatus = 'd' : req.body.isIrrelevant == true ? newStatus = 'i' : newStatus = 'a';
+
+			// Altera no banco
+			await models.DailyLog.editDailyLogStatus(req.body.key, newStatus, req.context.user.id)
+			.then(function (resp) {
+				if(resp[0] == 1) {
+					// Funcionou a edição
+					var editDailyLogResponse = {};
+					editDailyLogResponse.Status = 200;
+
+					return res.send(editDailyLogResponse);
+				} else {
+					// Não editou nada
+					var editDailyLogResponse = {};
+					editDailyLogResponse.Status = 204;
+					editDailyLogResponse.Message = 'Não houve Daily Log editado.';
+					return res.send(editDailyLogResponse);
+				}
+			})
+			.catch(function (err) {
+				// Deu um erro interno na edição
+				var editDailyLogFailResponse = {};
+				editDailyLogFailResponse.Status = 500;
+				editDailyLogFailResponse.Message = 'Falha interna na edição de Daily Log. Tente novamente.';
+				return res.send(editDailyLogFailResponse);
+			});
+		} else if(req.body.postPone == true && req.body.postPoneDate != undefined && req.body.key != "") {
+			// Adia a tarefa para o dia req.body.postPoneDate (DD-MM-YYYY) na tabela de Daily Logs
+			// Primeiro recupera as informações do Daily Log completo para replicar na terceira etapa o Daily Log na nova data
+			await models.DailyLog.getDailyLogByKey(req.body.key, req.context.user.id)
+			.then(async function (resp1) {
+				if (resp1 != []) {
+					// Encontrou com sucesso o Daily Log
+					// Verifica se o Daily Log está com status active ('a')
+					if (resp1[0].Status == 'a') {
+						// Segundo marca o status do Daily Log para postponed ('p')
+						await models.DailyLog.editDailyLogStatus(req.body.key, 'p', req.context.user.id)
+						.then(async function (resp2) {
+							if(resp2[0] == 1) {
+								// Funcionou a edição
+								// Cria o objeto do novo Daily Log
+								var newPostponedDailyLog = {};
+								newPostponedDailyLog.signifier = resp1[0].Signifier;
+								newPostponedDailyLog.date = req.body.postPoneDate; // Nova data do novo Daily Log adiado
+								newPostponedDailyLog.text = resp1[0].Text;
+								newPostponedDailyLog.status = 'a';
+								newPostponedDailyLog.userId = resp1[0].UserId;
+								
+								// Terceiro cria a nova tarefa na data especificada
+								await models.DailyLog.createDailyLog(newPostponedDailyLog)
+								.then(function (resp3) {
+									if (resp3 == undefined) {
+										// Deu um erro interno na criação
+										var createDailyLogFailResponse = {};
+										createDailyLogFailResponse.Status = 500;
+										createDailyLogFailResponse.Message = 'Falha interna ao adiar o Daily Log. Tente novamente.';
+										return res.send(createDailyLogFailResponse);
+									} else {
+										// Deu certo a criação
+										var postponeDailyLogResponse = {};
+										postponeDailyLogResponse.DailyLog = resp3;
+										postponeDailyLogResponse.Status = 201;
+
+										return res.send(postponeDailyLogResponse);
+									}
+								})
+								.catch(async function (err) {
+									// Deu erro na criação, então volta o status do DailyLog antigo
+									await models.DailyLog.editDailyLogStatus(req.body.key, resp1.Status, req.context.user.id)
+									.then(function (resp4) {
+										// Conseguiu reverter o status do Daily Log inicial
+										var postponeDailyLogFailResponse = {};
+										postponeDailyLogFailResponse.Status = 500;
+										postponeDailyLogFailResponse.Message = 'Falha interna ao adiar o Daily Log. Tente novamente.';
+										return res.send(postponeDailyLogFailResponse);
+									})
+									.catch(function (err) {
+										// Não conseguiu reverter o status do Daily Log inicial
+										var postponeDailyLogFailResponse = {};
+										postponeDailyLogFailResponse.Status = 500;
+										postponeDailyLogFailResponse.Message = 'Falha interna ao adiar o Daily Log. Falha ao reverter status do DailyLog original.';
+										return res.send(postponeDailyLogFailResponse);
+									})
+								});
+								var editDailyLogResponse = {};
+								editDailyLogResponse.Status = 200;
+
+								return res.send(editDailyLogResponse);
+							} else {
+								// Não editou nada
+								var editDailyLogResponse = {};
+								editDailyLogResponse.Status = 204;
+								editDailyLogResponse.Message = 'Não foi possível adiar o Daily Log.';
+								return res.send(editDailyLogResponse);
+							}
+						})
+						.catch(function (err) {
+							// Deu um erro interno na edição
+							var editDailyLogResponse = {};
+							editDailyLogResponse.Status = 500;
+							editDailyLogResponse.Message = 'Falha interna na edição de Daily Log. Tente novamente.';
+							return res.send(editDailyLogResponse);
+						});
+					} else {
+						// Sintaxe errada
+						var editDailyLogFailResponse = {};
+						editDailyLogFailResponse.Status = 400;
+						editDailyLogFailResponse.Message = 'Erro na sintaxe para edição de Daily Log. Daily Log não está ativo para ser adiado.';
+						return res.send(editDailyLogFailResponse);
+					}
+				} else {
+					// Não encontrou Daily Log
+					var getDailyLogFailResponse = {};
+					getDailyLogFailResponse.Status = 204;
+					getDailyLogFailResponse.Message = 'Problema ao adiar Daily Log. Não encontrou o Daily Log.';
+					return res.send(getDailyLogFailResponse);
+				}
+			})
+			.catch(function (err) {
+				// Deu um erro interno ao buscar o DailyLog
+				var getDailyLogFailResponse = {};
+				getDailyLogFailResponse.Status = 500;
+				getDailyLogFailResponse.Message = 'Falha interna ao adiar Daily Log. Erro na etapa de encontrar o Daily Log.';
+				return res.send(getDailyLogFailResponse);
+			});
+		} else {
+			// Sintaxe errada
+			var editDailyLogFailResponse = {};
+			editDailyLogFailResponse.Status = 400;
+			editDailyLogFailResponse.Message = 'Erro na sintaxe para edição de Daily Log.';
+			return res.send(editDailyLogFailResponse);
 		}
 	} else {
 		// Não tem como editar o daily log, pois o usuário não está autenticado
 		var editDailyLogFailResponse = {};
-		editDailyLogFailResponse.Status = 400;
+		editDailyLogFailResponse.Status = 401;
 		editDailyLogFailResponse.Message = 'Falha na autenticação do usuário para edição de Daily Log.';
 		return res.send(editDailyLogFailResponse);
 	}
